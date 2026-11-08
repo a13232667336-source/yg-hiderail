@@ -10,37 +10,37 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Toolchain
+      - name: Toolchain + ldid
         run: |
           sudo apt-get update -qq
-          sudo apt-get install -y -qq clang lld llvm ldid curl git zip unzip xz-utils >/dev/null 2>&1 || true
-          which clang; clang --version | head -2
-          ls /usr/bin | grep -E "^ld64|lld" | head
-          which ldid || sudo apt-get install -y -qq ldid || true
+          sudo apt-get install -y -qq clang lld llvm curl git zip unzip xz-utils >/dev/null
+          curl -fsSL -o /tmp/ldid https://github.com/ProcursusTeam/ldid/releases/latest/download/ldid_linux_x86_64
+          sudo install -m755 /tmp/ldid /usr/local/bin/ldid
+          /usr/local/bin/ldid 2>&1 | head -3 || true
 
       - name: iPhoneOS SDK
         run: |
           git clone --depth 1 https://github.com/theos/sdks.git /tmp/sdks
           SDK=$(ls -d /tmp/sdks/iPhoneOS*.sdk | sort -V | tail -1)
           echo "SDK=$SDK" >> $GITHUB_ENV
-          ls "$SDK" | head -5
+          echo "using $SDK"
 
       - name: Compile dylib
         run: |
           set -e
           clang -target arm64-apple-ios14.0 \
-                -dynamiclib -fobjc-arc \
+                -dynamiclib -fobjc-arc -O2 \
                 -isysroot "$SDK" -F"$SDK/System/Library/Frameworks" \
                 -framework UIKit -framework Foundation \
                 -fuse-ld=lld -Wl,-undefined,dynamic_lookup \
                 -Wl,-install_name,/usr/lib/HideRail.dylib \
-                -O2 -o HideRail.dylib HideRail.m
-          file HideRail.dylib || true
+                -o HideRail.dylib HideRail.m
           ls -l HideRail.dylib
 
-      - name: Ad-hoc sign
+      - name: Sign (ad-hoc)
         run: |
-          ldid -S HideRail.dylib && echo signed || echo "ldid unavailable (TrollFools will sign)"
+          ldid -S HideRail.dylib
+          ldid -e HideRail.dylib | head -5 || true
           ls -l HideRail.dylib
 
       - uses: actions/upload-artifact@v4
