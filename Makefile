@@ -4,10 +4,10 @@ INSTALL_TARGET_PROCESSES = Telegram
 
 include $(THEOS)/makefiles/common.mk
 
-TWEAK_NAME = HideRail
+LIBRARY_NAME = HideRail
 
-HideRail_FILES = Tweak.x
+HideRail_FILES = HideRail.m
 HideRail_CFLAGS = -fobjc-arc
 HideRail_FRAMEWORKS = UIKit Foundation
 
-include $(THEOS_MAKE_PATH)/tweak.mk
+include $(THEOS_MAKE_PATH)/library.mk
