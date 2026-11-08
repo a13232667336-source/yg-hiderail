@@ -1,0 +1,9 @@
+Package: com.yg.hiderail
+Name: HideRail
+Version: 0.1.0
+Architecture: iphoneos-arm64
+Description: Hide the left chat/channel rail in Telegram iOS 13.x group & topic screens (TrollFools / TrollStore injection).
+Maintainer: YG
+Author: YG
+Section: Tweaks
+Depends: mobilesubstrate
