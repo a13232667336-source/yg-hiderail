@@ -13,10 +13,11 @@ jobs:
       - name: Install toolchain
         run: |
           sudo apt-get update -qq
-          sudo apt-get install -y -qq make git curl xz-utils clang dpkg fakeroot libplist3 zip unzip >/dev/null
+          sudo apt-get install -y -qq make git curl xz-utils clang dpkg fakeroot zip unzip >/dev/null
           curl -fsSL -o /tmp/ldid https://github.com/ProcursusTeam/ldid/releases/latest/download/ldid_linux_x86_64
           sudo install -m755 /tmp/ldid /usr/local/bin/ldid
-          ldid -h >/dev/null 2>&1 || echo "ldid ready"
+          /usr/local/bin/ldid -h 2>&1 | head -3 || true
+          clang --version | head -2
 
       - name: Install Theos + SDKs
         run: |
@@ -29,7 +30,7 @@ jobs:
       - name: Build
         run: |
           make clean || true
-          make package FINALPACKAGE=1 DEBUG=0 2>&1 | tail -40
+          make package FINALPACKAGE=1 DEBUG=0 2>&1 | tail -50
           mkdir -p out
           find .theos -name "HideRail.dylib" -exec cp {} out/ \;
           ls -l out
